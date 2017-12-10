@@ -10,6 +10,7 @@ import numpy as np
 import tensorflow as tf
 import pickle
 from PIL import Image
+import cv2
 from tensorflow.python.ops import control_flow_ops
 import sys
 reload(sys)
@@ -34,9 +35,9 @@ tf.app.flags.DEFINE_integer('max_steps', 16002, 'the max training steps ')
 tf.app.flags.DEFINE_integer('eval_steps', 100, "the step num to eval")
 tf.app.flags.DEFINE_integer('save_steps', 500, "the steps to save")
 
-tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoint/', 'the checkpoint dir')
-tf.app.flags.DEFINE_string('train_data_dir', '../data/train/', 'the train dataset dir')
-tf.app.flags.DEFINE_string('test_data_dir', '../data/test/', 'the test dataset dir')
+tf.app.flags.DEFINE_string('checkpoint_dir', './checkpoint_print3755_56000/', 'the checkpoint dir')
+tf.app.flags.DEFINE_string('train_data_dir', '/home/ljs/data/test/train/', 'the train dataset dir')
+tf.app.flags.DEFINE_string('test_data_dir', '/home/ljs/data/test/test/', 'the test dataset dir')
 tf.app.flags.DEFINE_string('log_dir', './log', 'the logging dir')
 
 tf.app.flags.DEFINE_boolean('restore', False, 'whether to restore from checkpoint')
@@ -153,8 +154,8 @@ def build_graph(top_k):
 
 def train():
     print('Begin training')
-    train_feeder = DataIterator(data_dir='../data/train/')
-    test_feeder = DataIterator(data_dir='../data/test/')
+    train_feeder = DataIterator(data_dir='/home/ljs/data/test/train/')
+    test_feeder = DataIterator(data_dir='/home/ljs/data/test/test/')
     model_name = 'chinese-rec-model'
     with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True)) as sess:
         train_images, train_labels = train_feeder.input_pipeline(batch_size=FLAGS.batch_size, aug=True)
@@ -222,7 +223,7 @@ def train():
 
 def validation():
     print('Begin validation')
-    test_feeder = DataIterator(data_dir='../data/test/')
+    test_feeder = DataIterator(data_dir='/home/ljs/data/test/test/')
 
     final_predict_val = []
     final_predict_index = []
@@ -288,6 +289,16 @@ def get_file_list(path):
         list_name.append(file_path)
     return list_name
 
+def binary_pic(name_list):
+    for image in name_list:
+        temp_image = cv2.imread(image)
+        #print image
+        GrayImage=cv2.cvtColor(temp_image,cv2.COLOR_BGR2GRAY) 
+        ret,thresh1=cv2.threshold(GrayImage,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        single_name = image.split('t/')[1]
+        print single_name
+        cv2.imwrite('../data/tmp/'+single_name,thresh1)
+
 
 def get_label_dict():
     f=open('../data/chinese_labels','r')
@@ -341,7 +352,9 @@ def main(_):
     elif FLAGS.mode == 'inference':
         label_dict = get_label_dict()
         name_list = get_file_list('../data/predict')
-        final_predict_val, final_predict_index = inference(name_list)
+        binary_pic(name_list)
+        tmp_name_list = get_file_list('../data/tmp')
+        final_predict_val, final_predict_index = inference(tmp_name_list)
         for i in range(len(final_predict_val)):
             candidate1 = final_predict_index[i][0][0]
             candidate2 = final_predict_index[i][0][1]
