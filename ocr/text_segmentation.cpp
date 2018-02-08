@@ -4,7 +4,6 @@
 
 using namespace cv;
 
-
 #define V_PROJECT 1
 #define H_PROJECT 2
 
@@ -16,8 +15,7 @@ typedef struct
 }char_range_t;
 
 
-
-//»ñÈ¡ÎÄ±¾µÄÍ¶Ó°ÓÃÓÚ·Ö¸î×Ö·û(´¹Ö±£¬Ë®Æ½)
+//è·å–æ–‡æœ¬çš„æŠ•å½±ç”¨äºåˆ†å‰²å­—ç¬¦(å‚ç›´ï¼Œæ°´å¹³)
 int GetTextProjection(Mat &src, vector<int>& pos, int mode)
 {
 	if (mode == V_PROJECT)
@@ -48,14 +46,10 @@ int GetTextProjection(Mat &src, vector<int>& pos, int mode)
 			}
 		}
 	}
-
-
-
-
 	return 0;
 }
 
-//»ñÈ¡Ã¿¸ö·Ö¸î×Ö·ûµÄ·¶Î§£¬min_thresh£º²¨·åµÄ×îĞ¡·ù¶È£¬min_range£ºÁ½¸ö²¨·åµÄ×îĞ¡¼ä¸ô
+//è·å–æ¯ä¸ªåˆ†å‰²å­—ç¬¦çš„èŒƒå›´ï¼Œmin_threshï¼šæ³¢å³°çš„æœ€å°å¹…åº¦ï¼Œmin_rangeï¼šä¸¤ä¸ªæ³¢å³°çš„æœ€å°é—´éš”
 int GetPeekRange(vector<int> &vertical_pos, vector<char_range_t> &peek_range, int min_thresh = 2, int min_range = 10)
 {
 	int begin = 0;
@@ -93,7 +87,6 @@ int GetPeekRange(vector<int> &vertical_pos, vector<char_range_t> &peek_range, in
 			//printf("raise error!\n");
 		}
 	}
-
 	return 0;
 }
 
@@ -105,7 +98,7 @@ inline void save_cut(const Mat& img, int id)
 	imwrite(name, img);
 }
 
-//ÇĞ¸î×Ö·û
+//åˆ‡å‰²å­—ç¬¦
 int CutChar(Mat &img, const vector<char_range_t>& v_peek_range, const vector<char_range_t>& h_peek_range, vector<Mat>& chars_set)
 {
 	static int count = 0;
@@ -134,7 +127,6 @@ Mat cut_one_line(const Mat& src,int begin,int end)
 	return line;
 }
 
-
 vector<Mat> CutSingleChar(Mat& img)
 {
 	//resize(img, img, Size(), 1.5, 1.5, INTER_LANCZOS4);
@@ -145,7 +137,7 @@ vector<Mat> CutSingleChar(Mat& img)
 	GetTextProjection(img, horizion_pos, H_PROJECT);
 	GetPeekRange(horizion_pos, h_peek_range, 10, 10);
 	
-	/*½«Ã¿Ò»ÎÄ±¾ĞĞÇĞ¸î*/
+	/*å°†æ¯ä¸€æ–‡æœ¬è¡Œåˆ‡å‰²*/
 	vector<Mat> lines_set;
 	for (int i = 0; i < h_peek_range.size(); i++)
 	{
@@ -164,21 +156,8 @@ vector<Mat> CutSingleChar(Mat& img)
 		GetPeekRange(vertical_pos, v_peek_range);
 		CutChar(line, v_peek_range, h_peek_range, chars_set);
 	}
-
-
 	return chars_set;
-
-
 }
-
-
-
-
-
-
-
-
-
 
 int main()
 {
@@ -188,7 +167,7 @@ int main()
 
 	for (int i = 0; i < chars_set.size(); i++)
 	{
-		/*×Ö·ûÊ¶±ğ*/
+		/*å­—ç¬¦è¯†åˆ«*/
 	}
 
 	waitKey();
