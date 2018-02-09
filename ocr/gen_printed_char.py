@@ -17,7 +17,47 @@ import random
 import numpy as np
 import shutil
 import traceback
+import copy
 
+
+class dataAugmentation(object):
+    def __init__(self,noise=True,dilate=True,erode=True):
+        self.noise = noise
+        self.dilate = dilate
+        self.erode = erode
+
+    @classmethod 
+    def add_noise(cls,img):
+        for i in range(20): #添加点噪声
+            temp_x = np.random.randint(0,img.shape[0])
+            temp_y = np.random.randint(0,img.shape[1])
+            img[temp_x][temp_y] = 255
+        return img
+
+    @classmethod
+    def add_erode(cls,img):
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3, 3))    
+        img = cv2.erode(img,kernel) 
+        return img
+
+    @classmethod
+    def add_dilate(cls,img):
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3, 3))    
+        img = cv2.dilate(img,kernel) 
+        return img
+
+    def do(self,img_list=[]):
+        aug_list= copy.deepcopy(img_list)
+        for i in range(len(img_list)):
+            im = img_list[i]
+            if self.noise and random.random()<0.5:
+                im = self.add_noise(im)
+            if self.dilate and random.random()<0.5:
+                im = self.add_dilate(im)
+            elif self.erode:
+                im = self.add_erode(im)    
+            aug_list.append(im)
+        return aug_list
 
 # 对字体图像做等比例缩放
 class PreprocessResizeKeepRatio(object):
@@ -296,6 +336,9 @@ def args_parse():
     parser.add_argument('--rotate_step', dest='rotate_step',
                         default=0, required=False,
                         help='rotate step for the rotate angle')
+    parser.add_argument('--need_aug', dest='need_aug',
+                        default=False, required=False,
+                        help='need data augmentation', action='store_true')   
     args = vars(parser.parse_args()) 
     return args
 
@@ -316,6 +359,7 @@ python gen_printed_char.py --out_dir ./dataset \
     need_crop = not options['no_crop']
     margin = int(options['margin'])
     rotate = int(options['rotate'])
+    need_aug = options['need_aug']
     rotate_step = int(options['rotate_step'])
     train_image_dir_name = "train"
     test_image_dir_name = "test"
@@ -379,10 +423,14 @@ python gen_printed_char.py --out_dir ./dataset \
                 for k in all_rotate_angles:	
                     image = font2image.do(verified_font_path, char, rotate=k)
                     image_list.append(image)
-                
+
+
+        if need_aug:
+            data_aug = dataAugmentation()
+            image_list = data_aug.do(image_list)
+            
         test_num = len(image_list) * test_ratio
         random.shuffle(image_list)  # 图像列表打乱
-
         count = 0
         for i in range(len(image_list)):
             img = image_list[i]
