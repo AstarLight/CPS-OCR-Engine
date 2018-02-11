@@ -325,7 +325,7 @@ def binary_pic(name_list):
 
 # 获取汉字label映射表
 def get_label_dict():
-    f=open('../data/chinese_labels','r')
+    f=open('./chinese_labels','r')
     label_dict = pickle.load(f)
     f.close()
     return label_dict
@@ -380,7 +380,7 @@ def main(_):
         logger.info('Write file ends')
     elif FLAGS.mode == 'inference':
         label_dict = get_label_dict()
-        name_list = get_file_list('./tmp/debug_dir/chars')
+        name_list = get_file_list('./tmp')
         #binary_pic(name_list)
         #tmp_name_list = get_file_list('../data/tmp')
         # 将待预测的图片名字列表送入predict()进行预测，得到预测的结果及其index
