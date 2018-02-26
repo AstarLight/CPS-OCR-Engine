@@ -3,8 +3,10 @@ An awesome OCR engine developed by SYSU DeepDriving Lab
 
 一个基于深度学习的文字识别系统，支持3755个（一级字库）的印刷体汉字识别。
 
-因为近期在帮学校财务处审计处设计智能票据识别系统，需要用到OCR去识别一些汉字，做智能信息录入。对于汉字的识别，我尝试过Tessercact，实在太烂，
+因为近期在帮学校财务处审计处设计智能票据识别系统（已经支持数十类票据啦），需要用到OCR去识别一些汉字，做智能信息录入。对于汉字的识别，我尝试过Tessercact，实在太烂，
 也试过百度的ocr接口，但是感觉不太适合（第一是要钱的，第二毕竟是别人的API，想优化也优化不了），那就自己搞一搞基于深度学习的OCR引擎吧，算是锻炼一下自己。
+
+![](./GIF3.gif) 
 
 这个OCR模型专注于电子文档、证件、票据的汉字识别。
 
@@ -55,3 +57,6 @@ python Chinese_OCR.py --mode=validation
 <div align="center">
 <img src="./408.png" height="180px" width="1000px" alt="图片说明" >
 </div>
+
+
+更多细节请访问我的博客：http://www.cnblogs.com/skyfsm/p/8443107.html
