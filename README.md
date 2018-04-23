@@ -60,3 +60,5 @@ python Chinese_OCR.py --mode=validation
 
 
 更多细节请访问我的博客：http://www.cnblogs.com/skyfsm/p/8443107.html
+
+最后分享一下我的模型：链接：https://pan.baidu.com/s/1eTmm0eQ 密码：m7ns
