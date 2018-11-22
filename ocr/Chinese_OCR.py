@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+﻿#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # top 1 accuracy 0.99826 top 5 accuracy 0.99989
@@ -45,7 +45,7 @@ tf.app.flags.DEFINE_string('log_dir', './log', 'the logging dir')
 
 tf.app.flags.DEFINE_boolean('restore', False, 'whether to restore from checkpoint')
 tf.app.flags.DEFINE_boolean('epoch', 1, 'Number of epoches')
-tf.app.flags.DEFINE_boolean('batch_size', 128, 'Validation batch size')
+tf.app.flags.DEFINE_integer('batch_size', 128, 'Validation batch size')
 tf.app.flags.DEFINE_string('mode', 'validation', 'Running mode. One of {"train", "valid", "test"}')
 
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
