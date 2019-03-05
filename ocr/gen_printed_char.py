@@ -21,45 +21,47 @@ import copy
 
 
 class dataAugmentation(object):
-    def __init__(self,noise=True,dilate=True,erode=True):
+    def __init__(self, noise=True, dilate=True, erode=True):
         self.noise = noise
         self.dilate = dilate
         self.erode = erode
 
-    @classmethod 
-    def add_noise(cls,img):
-        for i in range(20): #添加点噪声
-            temp_x = np.random.randint(0,img.shape[0])
-            temp_y = np.random.randint(0,img.shape[1])
+    @classmethod
+    def add_noise(cls, img):
+        for i in range(20):  # 添加点噪声
+            temp_x = np.random.randint(0, img.shape[0])
+            temp_y = np.random.randint(0, img.shape[1])
             img[temp_x][temp_y] = 255
         return img
 
     @classmethod
-    def add_erode(cls,img):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3, 3))    
-        img = cv2.erode(img,kernel) 
+    def add_erode(cls, img):
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        img = cv2.erode(img, kernel)
         return img
 
     @classmethod
-    def add_dilate(cls,img):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(3, 3))    
-        img = cv2.dilate(img,kernel) 
+    def add_dilate(cls, img):
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        img = cv2.dilate(img, kernel)
         return img
 
-    def do(self,img_list=[]):
-        aug_list= copy.deepcopy(img_list)
+    def do(self, img_list=[]):
+        aug_list = copy.deepcopy(img_list)
         for i in range(len(img_list)):
             im = img_list[i]
-            if self.noise and random.random()<0.5:
+            if self.noise and random.random() < 0.5:
                 im = self.add_noise(im)
-            if self.dilate and random.random()<0.5:
+            if self.dilate and random.random() < 0.5:
                 im = self.add_dilate(im)
             elif self.erode:
-                im = self.add_erode(im)    
+                im = self.add_erode(im)
             aug_list.append(im)
         return aug_list
 
 # 对字体图像做等比例缩放
+
+
 class PreprocessResizeKeepRatio(object):
 
     def __init__(self, width, height):
@@ -122,7 +124,9 @@ class FindImageBBox(object):
                 break
         return (left, top, right, low)
 
-# 把字体图像放到背景图像中		
+# 把字体图像放到背景图像中
+
+
 class PreprocessResizeKeepRatioFillBG(object):
 
     def __init__(self, width, height,
@@ -158,15 +162,15 @@ class PreprocessResizeKeepRatioFillBG(object):
         if height_large < height_small:
             raise ValueError("height_large <= height_small")
 
-        start_width = (width_large - width_small) / 2
-        start_height = (height_large - height_small) / 2
+        start_width = (width_large - width_small) // 2
+        start_height = (height_large - height_small) // 2
 
         img_large[start_height:start_height + height_small,
                   start_width:start_width + width_small] = img_small
         return img_large
 
     def do(self, cv2_img):
-		# 确定有效字体区域，原图减去边缘长度就是字体的区域
+                # 确定有效字体区域，原图减去边缘长度就是字体的区域
         if self.margin is not None:
             width_minus_margin = max(2, self.width - self.margin)
             height_minus_margin = max(2, self.height - self.margin)
@@ -192,7 +196,7 @@ class PreprocessResizeKeepRatioFillBG(object):
             else:
                 self.fill_bg = True
 
-        ## should skip horizontal stroke
+        # should skip horizontal stroke
         if not self.fill_bg:
             ret_img = cv2.resize(resized_cv2_img, (width_minus_margin,
                                                    height_minus_margin))
@@ -206,7 +210,7 @@ class PreprocessResizeKeepRatioFillBG(object):
                 norm_img = np.zeros((height_minus_margin,
                                      width_minus_margin),
                                     np.uint8)
-			# 将缩放后的字体图像置于背景图像中央
+                # 将缩放后的字体图像置于背景图像中央
             ret_img = self.put_img_into_center(norm_img, resized_cv2_img)
 
         if self.margin is not None:
@@ -223,6 +227,8 @@ class PreprocessResizeKeepRatioFillBG(object):
         return ret_img
 
 # 检查字体文件是否可用
+
+
 class FontCheck(object):
 
     def __init__(self, lang_chars, width=32, height=32):
@@ -235,7 +241,7 @@ class FontCheck(object):
         height = self.height
         try:
             for i, char in enumerate(self.lang_chars):
-                img = Image.new("RGB", (width, height), "black") # 黑色背景
+                img = Image.new("RGB", (width, height), "black")  # 黑色背景
                 draw = ImageDraw.Draw(img)
                 font = ImageFont.truetype(font_path, int(width * 0.9),)
                 # 白色字体
@@ -254,6 +260,8 @@ class FontCheck(object):
         return True
 
 # 生成字体图像
+
+
 class Font2Image(object):
 
     def __init__(self,
@@ -299,14 +307,28 @@ class Font2Image(object):
             print("img doesn't exist.")
 
 # 注意，chinese_labels里面的映射关系是：（ID：汉字）
+
+
+class StrToBytes:
+    def __init__(self, fileobj):
+        self.fileobj = fileobj
+
+    def read(self, size):
+        return self.fileobj.read(size).encode()
+
+    def readline(self, size=-1):
+        return self.fileobj.readline(size).encode()
+
+
 def get_label_dict():
-    f=open('./chinese_labels','r')
-    label_dict = pickle.load(f)
+    f = open('./chinese_labels', 'r')
+    label_dict = pickle.load(StrToBytes(f))
     f.close()
     return label_dict
 
+
 def args_parse():
-    #解析输入参数
+    # 解析输入参数
     parser = argparse.ArgumentParser(
         description=description, formatter_class=RawTextHelpFormatter)
     parser.add_argument('--out_dir', dest='out_dir',
@@ -338,9 +360,10 @@ def args_parse():
                         help='rotate step for the rotate angle')
     parser.add_argument('--need_aug', dest='need_aug',
                         default=False, required=False,
-                        help='need data augmentation', action='store_true')   
-    args = vars(parser.parse_args()) 
+                        help='need data augmentation', action='store_true')
+    args = vars(parser.parse_args())
     return args
+
 
 if __name__ == "__main__":
 
@@ -375,35 +398,35 @@ python gen_printed_char.py --out_dir ./dataset \
     if os.path.isdir(test_images_dir):
         shutil.rmtree(test_images_dir)
     os.makedirs(test_images_dir)
-    
-    #将汉字的label读入，得到（ID：汉字）的映射表label_dict
+
+    # 将汉字的label读入，得到（ID：汉字）的映射表label_dict
     label_dict = get_label_dict()
-    
-    char_list=[]  # 汉字列表
-    value_list=[] # label列表
-    for (value,chars) in label_dict.items():
-        print (value,chars)
+
+    char_list = []  # 汉字列表
+    value_list = []  # label列表
+    for (value, chars) in label_dict.items():
+        print(value, chars)
         char_list.append(chars)
         value_list.append(value)
 
     # 合并成新的映射关系表：（汉字：ID）
-    lang_chars = dict(zip(char_list,value_list)) 
-    font_check = FontCheck(lang_chars) 
-    
+    lang_chars = dict(zip(char_list, value_list))
+    font_check = FontCheck(lang_chars)
+
     if rotate < 0:
         roate = - rotate
-    
+
     if rotate > 0 and rotate <= 45:
         all_rotate_angles = []
-        for i in range(0, rotate+1, rotate_step):  
+        for i in range(0, rotate+1, rotate_step):
             all_rotate_angles.append(i)
         for i in range(-rotate, 0, rotate_step):
             all_rotate_angles.append(i)
-        #print(all_rotate_angles)
-    
+        # print(all_rotate_angles)
+
     # 对于每类字体进行小批量测试
     verified_font_paths = []
-    ## search for file fonts
+    # search for file fonts
     for font_name in os.listdir(font_dir):
         path_font_file = os.path.join(font_dir, font_name)
         if font_check.do(path_font_file):
@@ -413,29 +436,29 @@ python gen_printed_char.py --out_dir ./dataset \
 
     for (char, value) in lang_chars.items():  # 外层循环是字
         image_list = []
-        print (char,value)
+        print(char, value)
         #char_dir = os.path.join(images_dir, "%0.5d" % value)
-        for j, verified_font_path in enumerate(verified_font_paths):    # 内层循环是字体   
+        # 内层循环是字体
+        for j, verified_font_path in enumerate(verified_font_paths):
             if rotate == 0:
                 image = font2image.do(verified_font_path, char)
                 image_list.append(image)
             else:
-                for k in all_rotate_angles:	
+                for k in all_rotate_angles:
                     image = font2image.do(verified_font_path, char, rotate=k)
                     image_list.append(image)
-
 
         if need_aug:
             data_aug = dataAugmentation()
             image_list = data_aug.do(image_list)
-            
+
         test_num = len(image_list) * test_ratio
         random.shuffle(image_list)  # 图像列表打乱
         count = 0
         for i in range(len(image_list)):
             img = image_list[i]
-            #print(img.shape)
-            if count < test_num :
+            # print(img.shape)
+            if count < test_num:
                 char_dir = os.path.join(test_images_dir, "%0.5d" % value)
             else:
                 char_dir = os.path.join(train_images_dir, "%0.5d" % value)
@@ -443,6 +466,6 @@ python gen_printed_char.py --out_dir ./dataset \
             if not os.path.isdir(char_dir):
                 os.makedirs(char_dir)
 
-            path_image = os.path.join(char_dir,"%d.png" % count)
-            cv2.imwrite(path_image,img)
+            path_image = os.path.join(char_dir, "%d.png" % count)
+            cv2.imwrite(path_image, img)
             count += 1

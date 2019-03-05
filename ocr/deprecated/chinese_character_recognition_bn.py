@@ -120,10 +120,10 @@ def build_graph(top_k):
         loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels))
         accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits, 1), labels), tf.float32))
 
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        if update_ops:
-            updates = tf.group(*update_ops)
-            loss = control_flow_ops.with_dependencies([updates], loss)
+#        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+#        if update_ops:
+#            updates = tf.group(*update_ops)
+#            loss = control_flow_ops.with_dependencies([updates], loss)
 
         global_step = tf.get_variable("step", [], initializer=tf.constant_initializer(0.0), trainable=False)
         optimizer = tf.train.AdamOptimizer(learning_rate=0.1)
